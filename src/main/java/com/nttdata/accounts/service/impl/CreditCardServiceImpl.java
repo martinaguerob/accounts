@@ -1,6 +1,6 @@
 package com.nttdata.accounts.service.impl;
 
-import com.nttdata.accounts.model.CreditCard;
+import com.nttdata.accounts.entity.CreditCard;
 import com.nttdata.accounts.repository.CreditCardRepository;
 import com.nttdata.accounts.service.CreditCardService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +31,6 @@ public class CreditCardServiceImpl implements CreditCardService {
         return  creditCardRepository.findById(entity.getId())
                 .switchIfEmpty(Mono.empty())
                 .flatMap(origin -> {
-                    origin.setCustomer(entity.getCustomer());
                     origin.setStatus(entity.getStatus());
                     origin.setBalance(entity.getBalance());
                     return creditCardRepository.save(origin);
@@ -51,5 +50,10 @@ public class CreditCardServiceImpl implements CreditCardService {
     @Override
     public Mono<CreditCard> findById(String id) {
         return creditCardRepository.findById(id);
+    }
+
+    @Override
+    public Mono<CreditCard> findByIdCustomer(String idCustomer) {
+        return creditCardRepository.findByIdCustomer(idCustomer);
     }
 }

@@ -1,7 +1,5 @@
 package com.nttdata.accounts.service;
 
-import com.nttdata.accounts.model.Credit;
-
 @FunctionalInterface
 public interface PagoMensual {
 

@@ -1,4 +1,4 @@
-package com.nttdata.accounts.model;
+package com.nttdata.accounts.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,9 +12,9 @@ public class BankAccount {
 
     @Id
     private String id;
-    private String type;
-    private String numberAccount;
-    private String customer;
-    private String typeCustomer; //Se eliminará al conectar con el MS de Customers
+    private String type; // Ahorro, corriente o fijo
+    private String numberAccount; //NúmeroDeCuenta
+    private String idCustomer; //Id del cliente
+    private Float balance; //Saldo
     private Boolean status;
 }

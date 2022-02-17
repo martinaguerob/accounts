@@ -1,6 +1,6 @@
 package com.nttdata.accounts.controller;
 
-import com.nttdata.accounts.model.CreditCard;
+import com.nttdata.accounts.entity.CreditCard;
 import com.nttdata.accounts.service.CreditCardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

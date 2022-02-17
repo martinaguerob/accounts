@@ -1,4 +1,4 @@
-package com.nttdata.accounts.model;
+package com.nttdata.accounts.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,6 +13,6 @@ public class CreditCard {
     @Id
     private String id;
     private Float balance; //Saldo inicial
-    private String customer;
+    private String idCustomer;
     private Boolean status;
 }

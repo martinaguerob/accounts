@@ -1,6 +1,6 @@
 package com.nttdata.accounts.repository;
 
-import com.nttdata.accounts.model.Credit;
+import com.nttdata.accounts.entity.Credit;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import reactor.core.publisher.Mono;
 

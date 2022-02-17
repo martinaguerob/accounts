@@ -1,10 +1,10 @@
 spring:
   data:
     mongodb:
-      uri: mongodb://localhost:27017/accounts
+      uri: mongodb://localhost:27019/accounts
   application:
     name: accounts-service
   cloud:
     config:
-      enabled: true
+      #enabled: true
       uri: http://localhost:8081

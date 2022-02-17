@@ -1,6 +1,7 @@
 package com.nttdata.accounts.controller;
 
-import com.nttdata.accounts.model.BankAccount;
+import com.nttdata.accounts.entity.BankAccount;
+import com.nttdata.accounts.model.Customers;
 import com.nttdata.accounts.service.BankAccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -9,63 +10,59 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("/bank-account")
+@RequestMapping("/accounts")
 public class BankAccountController {
 
     @Autowired
     BankAccountService bankAccountService;
 
-    @GetMapping
+    @GetMapping("/bank-account")
     @ResponseStatus(HttpStatus.OK)
     public Flux<BankAccount> getBankAccount(){
         System.out.println("Listar cuentas bancarias");
         return bankAccountService.findAll();
     }
 
-    @PostMapping
+    @PostMapping("/bank-account")
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<BankAccount> saveBankAccount(@RequestBody BankAccount bankAccount){
-        if (bankAccount.getTypeCustomer().equals("personal")){
-            //Si es personal
-            System.out.println("Guardar cuenta a personal");
-            return bankAccountService.findByTypeAndCustomer(bankAccount.getType(), bankAccount.getCustomer())
-                    .switchIfEmpty(bankAccountService.save(bankAccount))
-                    .onErrorResume(throwable -> Mono.empty());
-        }else if (bankAccount.getType().equals("plazo fijo")){
-            //Si es empresarial
-            System.out.println("Guardar cuenta empresarial");
-            return bankAccountService.save(bankAccount);
+        if (bankAccount.getType() == "ahorro"){
+            System.out.println("Guardar cuenta de ahorros");
+            return bankAccountService.saveSavingAccount(bankAccount);
+        }else if(bankAccount.getType() == "corriente"){
+            System.out.println("Guardar cuenta corriente");
+            return bankAccountService.saveSavingAccount(bankAccount);
         }else{
-            System.out.println("No se guarda nada");
-            return Mono.empty();
+            System.out.println("Guardar cuenta a plazo fijo");
+            return bankAccountService.saveSavingAccount(bankAccount);
         }
+
     }
 
-    @PutMapping("/update")
+    @PutMapping("/bank-account/update")
     @ResponseStatus(HttpStatus.OK)
     public Mono<BankAccount> updateBankAccount(@RequestBody BankAccount bankAccount){
         System.out.println("Actualizar cuenta bancaria");
         return bankAccountService.update(bankAccount);
     }
 
-    @PutMapping("/delete/{id}")
+    @PutMapping("/bank-account/delete/{id}")
     @ResponseStatus(HttpStatus.OK)
     public Mono<BankAccount> deleteBankAccount(@PathVariable String id){
         System.out.println("Eliminar cuenta bancaria");
         return bankAccountService.deleteById(id);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/bank-account/{id}")
     @ResponseStatus(HttpStatus.OK)
     public  Mono<BankAccount> findAccountBankId(@PathVariable String id){
         System.out.println("Buscar cuenta bancaria");
         return bankAccountService.findById(id);
     }
-
-    @GetMapping("/{customer}/{type}")
+    @GetMapping("/bank-account/customers")
     @ResponseStatus(HttpStatus.OK)
-    public  Mono<BankAccount> findAccountBankTypeCustomer(@PathVariable String type, @PathVariable String customer){
-        System.out.println("Buscar cuenta bancaria por tipo y cliente");
-        return bankAccountService.findByTypeAndCustomer(type, customer);
+    public Flux<Customers> getCustomers(){
+        System.out.println("Listar clientes");
+        return bankAccountService.getCustomers();
     }
 }

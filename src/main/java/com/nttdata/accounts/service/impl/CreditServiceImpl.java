@@ -1,6 +1,6 @@
 package com.nttdata.accounts.service.impl;
 
-import com.nttdata.accounts.model.Credit;
+import com.nttdata.accounts.entity.Credit;
 import com.nttdata.accounts.repository.CreditRepository;
 import com.nttdata.accounts.service.CreditService;
 import com.nttdata.accounts.service.PagoMensual;
