@@ -9,20 +9,20 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("/credit-card")
+@RequestMapping("/accounts")
 public class CreditCardController {
 
     @Autowired
     CreditCardService creditCardService;
 
-    @GetMapping
+    @GetMapping("/credit-card")
     @ResponseStatus(HttpStatus.OK)
     public Flux<CreditCard> getCreditCard(){
         System.out.println("Listar tarjetas de crédito");
         return creditCardService.findAll();
     }
 
-    @PostMapping
+    @PostMapping("/credit-card")
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<CreditCard> saveCreditCard(@RequestBody CreditCard creditCard){
         System.out.println("Guardar tarjeta de crédito");

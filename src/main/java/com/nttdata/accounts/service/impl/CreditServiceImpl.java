@@ -28,8 +28,8 @@ public class CreditServiceImpl implements CreditService {
             System.out.printf("Calculo: "+ (n1/n3)*(1+interes));
             return (n1/n3)*(1+interes);
         };
-        System.out.printf("Mensual sin interes: " + entity.getAmount()/entity.getMonthlyTime());
-        Double pagoMensual = op.calcular(entity.getAmount(), entity.getTea(), entity.getMonthlyTime());
+        System.out.printf("Mensual sin interes: " + entity.getAmount()/entity.getFeeMonthly());
+        Double pagoMensual = op.calcular(entity.getAmount(), entity.getTea(), entity.getFeeMonthly());
         System.out.printf("Mensual con interes: " + pagoMensual);
         entity.setFeeMonthly(pagoMensual.floatValue());
         entity.setStatus(true);
@@ -47,20 +47,20 @@ public class CreditServiceImpl implements CreditService {
             System.out.printf("  Calculo: "+ (n1/n3)*(1+interes));
             return (n1/n3)*(1+interes);
         };
-        System.out.printf("   Mensual sin interes: " + entity.getAmount()/entity.getMonthlyTime());
-        Double pagoMensual = op.calcular(entity.getAmount(), entity.getTea(), entity.getMonthlyTime());
+        System.out.printf("   Mensual sin interes: " + entity.getAmount()/entity.getFeeMonthly());
+        Double pagoMensual = op.calcular(entity.getAmount(), entity.getTea(), entity.getFeeMonthly());
         System.out.printf("   Mensual con interes: " + pagoMensual);
 
 
         return  creditRepository.findById(entity.getId())
                 .switchIfEmpty(Mono.empty())
                 .flatMap(origin -> {
-                    origin.setCustomer(entity.getCustomer());
+                    origin.setIdCustomer(entity.getIdCustomer());
                     origin.setType(entity.getType());
                     origin.setCode(entity.getCode());
                     origin.setAmount(entity.getAmount());
                     origin.setTea(entity.getTea());
-                    origin.setMonthlyTime(entity.getMonthlyTime());
+                    origin.setFeeMonthly(entity.getFeeMonthly());
                     origin.setFeeMonthly(pagoMensual.floatValue());
                     origin.setStatus(entity.getStatus());
                     return creditRepository.save(origin);

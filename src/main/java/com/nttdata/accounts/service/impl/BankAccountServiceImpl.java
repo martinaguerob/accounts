@@ -1,5 +1,6 @@
 package com.nttdata.accounts.service.impl;
 
+import com.nttdata.accounts.config.WebClientConfig;
 import com.nttdata.accounts.entity.BankAccount;
 import com.nttdata.accounts.model.Customers;
 import com.nttdata.accounts.model.MovementBankAccount;
@@ -7,38 +8,30 @@ import com.nttdata.accounts.repository.BankAccountRepository;
 import com.nttdata.accounts.repository.CreditCardRepository;
 import com.nttdata.accounts.service.BankAccountService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.Date;
 
 @Service
 public class BankAccountServiceImpl implements BankAccountService {
 
     @Autowired
     BankAccountRepository bankAccountRepository;
-
-    @Autowired
     CreditCardRepository creditCardRepository;
-
-    @Autowired
-    WebClient webClient;
+    private final WebClientConfig webClientConfig = new WebClientConfig();
 
     @Override
     public Flux<BankAccount> findAll() {
+        System.out.println(bankAccountRepository.findAll());
         return bankAccountRepository.findAll();
     }
 
     @Override
     public Mono<BankAccount> save(BankAccount entity) {
         System.out.println("Se llegó a la función guardar");
-        MovementBankAccount movementBankAccount = new MovementBankAccount();
-        movementBankAccount.setAmount(entity.getBalance());
-        movementBankAccount.setDescription("Apertura de cuenta");
-        movementBankAccount.setIdAccount(entity.getNumberAccount());
-        movementBankAccount.setStatus(true);
-        this.saveMovementBankAccount(movementBankAccount);
+        entity.setDate(new Date());
         entity.setStatus(true);
         return bankAccountRepository.save(entity);
     }
@@ -75,53 +68,56 @@ public class BankAccountServiceImpl implements BankAccountService {
     public Mono<BankAccount> saveSavingAccount(BankAccount entity) {
         //Lógica para guardar cuenta de ahorros
         System.out.println("Se guarda en ahorros");
-        return save(entity);
-
+        System.out.println("Id: "+ webClientConfig.getCustomerById(entity.getId()));
+        return webClientConfig.getCustomerById(entity.getId())
+                .flatMap(c -> {
+                            System.out.println("Se entró al get Map: "+ c.getName());
+                           return c.getCodProfile().equals("vip001") && creditCardRepository.findById(entity.getId()).equals(null)
+                                    ? this.save(entity)
+                                    : !(c.getCodProfile().equals("vip001")) ? this.save(entity) : Mono.empty();
+                        }
+                ).switchIfEmpty(Mono.empty());
     }
 
     @Override
     public Mono<BankAccount> saveCurrentAccount(BankAccount entity) {
+        //Lógica para guardar en cuenta corriente
         System.out.println("Se guarda en corriente");
-        return save(entity);
+        return webClientConfig.getCustomerById(entity.getId())
+                .flatMap(c -> {
+                            System.out.println("Se entró al get Map: "+ c.getName());
+                            return c.getCodProfile().equals("pyme001") && creditCardRepository.findById(entity.getId()).equals(null)
+                                    ? this.save(entity)
+                                    : !(c.getCodProfile().equals("pyme001")) ? this.save(entity) : Mono.empty();
+                        }
+                ).switchIfEmpty(Mono.empty());
     }
 
     @Override
     public Mono<BankAccount> saveFixedTerm(BankAccount entity) {
-        System.out.println("Se guarda en fija");
-        return save(entity);
+        //Lógica para guardar en cuenta plazo fijo
+        System.out.println("Se guarda en plazo fijo");
+        return this.save(entity);
     }
 
     @Override
     public Flux<Customers> getCustomers() {
-        Flux<Customers> customers = webClient
-                .get()
-                .uri("http://localhost:8080/customers/")
-                .accept(MediaType.APPLICATION_JSON)
-                .retrieve()
-                .bodyToFlux(Customers.class);
-        return customers;
+        return webClientConfig.getCustomers();
     }
 
     @Override
-    public Mono<Customers> getCustomer(String idCustomer) {
-        Mono<Customers> customer = webClient
-                .get()
-                .uri("http://localhost:8080/customers/{idCustomer}", idCustomer)
-                .accept(MediaType.APPLICATION_JSON)
-                .retrieve()
-                .bodyToMono(Customers.class);
-        return customer;
+    public Mono<Customers> getCustomerById(String id) {
+        return webClientConfig.getCustomerById(id);
     }
 
     @Override
-    public Mono<MovementBankAccount> saveMovementBankAccount(MovementBankAccount movementBankAccount) {
+    public Mono<MovementBankAccount> saveMovementBankAccount(String numberAccount, Float amount) {
         System.out.println("Se llegó a la función guardar movimiento");
-        Mono<MovementBankAccount> movement = webClient
-                .post()
-                .uri("http://localhost:8080/movements/bank-account", movementBankAccount)
-                .accept(MediaType.APPLICATION_JSON)
-                .retrieve()
-                .bodyToMono(MovementBankAccount.class);
-        return movement;
+        MovementBankAccount movementBankAccount = new MovementBankAccount();
+        movementBankAccount.setAmount(amount);
+        movementBankAccount.setDescription("Apertura de cuenta");
+        movementBankAccount.setIdAccount(numberAccount);
+        movementBankAccount.setStatus(true);
+        return  webClientConfig.saveMovementBankAccount(movementBankAccount);
     }
 }

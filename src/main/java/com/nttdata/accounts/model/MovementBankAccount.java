@@ -12,6 +12,7 @@ import java.util.Date;
 @AllArgsConstructor
 public class MovementBankAccount {
 
+    private String id;
     private String description;
     private Float amount;
     @DateTimeFormat(pattern = "yyyy-mm-dd hh:mm:ss")

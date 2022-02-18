@@ -13,6 +13,7 @@ public class CreditCard {
     @Id
     private String id;
     private Float balance; //Saldo inicial
+    private Float stop; //Tope
     private String idCustomer;
     private Boolean status;
 }

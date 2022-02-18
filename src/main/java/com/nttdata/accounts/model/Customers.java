@@ -8,10 +8,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Customers {
+
+    private String id;
     private String name;
     private String typeDoc;
     private String nroDoc;
     private String code;
     private Boolean status;
-    private String idProfile;
+    private String codProfile;
 }

@@ -26,17 +26,11 @@ public class BankAccountController {
     @PostMapping("/bank-account")
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<BankAccount> saveBankAccount(@RequestBody BankAccount bankAccount){
-        if (bankAccount.getType() == "ahorro"){
-            System.out.println("Guardar cuenta de ahorros");
-            return bankAccountService.saveSavingAccount(bankAccount);
-        }else if(bankAccount.getType() == "corriente"){
-            System.out.println("Guardar cuenta corriente");
-            return bankAccountService.saveSavingAccount(bankAccount);
-        }else{
-            System.out.println("Guardar cuenta a plazo fijo");
-            return bankAccountService.saveSavingAccount(bankAccount);
-        }
-
+        return bankAccount.getType().equals("ahorro")
+                ?  bankAccountService.saveSavingAccount(bankAccount)
+            : bankAccount.getType().equals("cuenta corriente")
+                ? bankAccountService.saveCurrentAccount(bankAccount)
+                : bankAccountService.saveFixedTerm(bankAccount);
     }
 
     @PutMapping("/bank-account/update")
@@ -64,5 +58,11 @@ public class BankAccountController {
     public Flux<Customers> getCustomers(){
         System.out.println("Listar clientes");
         return bankAccountService.getCustomers();
+    }
+    @GetMapping("/bank-account/customer/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public Mono<Customers> getCustomerById(String id){
+        System.out.println("Listar clientes");
+        return bankAccountService.getCustomerById(id);
     }
 }

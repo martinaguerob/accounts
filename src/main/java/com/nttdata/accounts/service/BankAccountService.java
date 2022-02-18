@@ -17,10 +17,10 @@ public interface BankAccountService extends CrudService<BankAccount, String>{
 
     //Customers
     Flux<Customers> getCustomers();
-    Mono<Customers> getCustomer(String idCustomer);
+    Mono<Customers> getCustomerById(String id);
 
     //Movement
-    Mono<MovementBankAccount> saveMovementBankAccount(MovementBankAccount movementBankAccount);
+    Mono<MovementBankAccount> saveMovementBankAccount(String numberAccount, Float amount);
 
 
 }

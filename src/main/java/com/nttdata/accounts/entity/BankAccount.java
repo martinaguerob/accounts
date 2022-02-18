@@ -4,6 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.util.Date;
 
 @Data
 @AllArgsConstructor
@@ -16,5 +19,7 @@ public class BankAccount {
     private String numberAccount; //NúmeroDeCuenta
     private String idCustomer; //Id del cliente
     private Float balance; //Saldo
+    @DateTimeFormat(pattern = "aaaa-mm-dd")
+    private Date date;
     private Boolean status;
 }
