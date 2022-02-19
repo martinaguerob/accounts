@@ -8,7 +8,9 @@ import com.nttdata.accounts.repository.BankAccountRepository;
 import com.nttdata.accounts.repository.CreditCardRepository;
 import com.nttdata.accounts.service.BankAccountService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -68,36 +70,47 @@ public class BankAccountServiceImpl implements BankAccountService {
     public Mono<BankAccount> saveSavingAccount(BankAccount entity) {
         //Lógica para guardar cuenta de ahorros
         System.out.println("Se guarda en ahorros");
-        System.out.println("Id: "+ webClientConfig.getCustomerById(entity.getId()));
-        return webClientConfig.getCustomerById(entity.getId())
-                .flatMap(c -> {
-                            System.out.println("Se entró al get Map: "+ c.getName());
-                           return c.getCodProfile().equals("vip001") && creditCardRepository.findById(entity.getId()).equals(null)
-                                    ? this.save(entity)
-                                    : !(c.getCodProfile().equals("vip001")) ? this.save(entity) : Mono.empty();
-                        }
-                ).switchIfEmpty(Mono.empty());
+        System.out.println("Id: "+ webClientConfig.getCustomerById(entity.getIdCustomer()));
+        Mono<Customers> customer = webClientConfig.getCustomerById(entity.getIdCustomer());
+        return customer
+                .filter(c -> (c.getCodProfile().equals("vip001") || c.getCodProfile().equals("personalb001")) && bankAccountRepository.findByIdCustomer(c.getId())== null )
+                .flatMap(origin -> origin.getCodProfile().equals("vip001") && creditCardRepository.findByIdCustomer(entity.getIdCustomer())==null
+                        ? this.save(entity)
+                        : !(origin.getCodProfile().equals("vip001"))
+                        ? this.save(entity) : Mono.empty())
+                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NO_CONTENT)));
     }
 
     @Override
     public Mono<BankAccount> saveCurrentAccount(BankAccount entity) {
         //Lógica para guardar en cuenta corriente
         System.out.println("Se guarda en corriente");
-        return webClientConfig.getCustomerById(entity.getId())
-                .flatMap(c -> {
-                            System.out.println("Se entró al get Map: "+ c.getName());
-                            return c.getCodProfile().equals("pyme001") && creditCardRepository.findById(entity.getId()).equals(null)
-                                    ? this.save(entity)
-                                    : !(c.getCodProfile().equals("pyme001")) ? this.save(entity) : Mono.empty();
-                        }
-                ).switchIfEmpty(Mono.empty());
+        Mono<Customers> customer = webClientConfig.getCustomerById(entity.getIdCustomer());
+        return customer
+                .filter(c ->
+                        (((c.getCodProfile().equals("personalb001")) || (c.getCodProfile().equals("vip001")))
+                                && bankAccountRepository.findByIdCustomer(entity.getIdCustomer()).equals(""))
+                                || (c.getCodProfile().equals("pyme001") || c.getCodProfile().equals("empresarialb001")))
+                .flatMap(origin -> origin.getCodProfile().equals("pyme001") && creditCardRepository.findByIdCustomer(entity.getIdCustomer())==null
+                        ? this.save(entity)
+                        : !(origin.getCodProfile().equals("pyme001"))
+                        ? this.save(entity) : Mono.empty()
+                ).switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NO_CONTENT)));
     }
 
     @Override
     public Mono<BankAccount> saveFixedTerm(BankAccount entity) {
         //Lógica para guardar en cuenta plazo fijo
         System.out.println("Se guarda en plazo fijo");
-        return this.save(entity);
+        Mono<Customers> customer = webClientConfig.getCustomerById(entity.getIdCustomer());
+
+        return customer
+                .filter(c ->
+                        ((c.getCodProfile().equals("personalb001")) || (c.getCodProfile().equals("vip001")))
+                         && bankAccountRepository.findByIdCustomer(c.getId())==null
+                )
+                .flatMap(origin->this.save(entity))
+                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NO_CONTENT)));
     }
 
     @Override

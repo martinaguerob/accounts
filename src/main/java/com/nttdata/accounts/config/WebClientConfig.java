@@ -4,6 +4,7 @@ import com.nttdata.accounts.model.Customers;
 import com.nttdata.accounts.model.MovementBankAccount;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
@@ -22,7 +23,7 @@ public class WebClientConfig {
                 .bodyToFlux(Customers.class);
     }
 
-    public Mono<Customers> getCustomerById(String id){
+    public Mono<Customers> getCustomerById(@PathVariable String id){
         return webClientBuilder.build()
                 .get()
                 .uri("http://localhost:8080/customers/"+id)

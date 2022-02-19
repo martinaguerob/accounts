@@ -26,7 +26,7 @@ public class BankAccountController {
     @PostMapping("/bank-account")
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<BankAccount> saveBankAccount(@RequestBody BankAccount bankAccount){
-        return bankAccount.getType().equals("ahorro")
+        return bankAccount.getType().equals("ahorros")
                 ?  bankAccountService.saveSavingAccount(bankAccount)
             : bankAccount.getType().equals("cuenta corriente")
                 ? bankAccountService.saveCurrentAccount(bankAccount)
@@ -61,8 +61,8 @@ public class BankAccountController {
     }
     @GetMapping("/bank-account/customer/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Mono<Customers> getCustomerById(String id){
-        System.out.println("Listar clientes");
+    public Mono<Customers> getCustomerById(@PathVariable String id){
+        System.out.println("Listar cliente por id: "+ id);
         return bankAccountService.getCustomerById(id);
     }
 }
