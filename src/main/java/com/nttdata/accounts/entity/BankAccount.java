@@ -18,6 +18,7 @@ public class BankAccount {
     private String type; // Ahorro, corriente o fijo
     private String numberAccount; //NúmeroDeCuenta
     private String idCustomer; //Id del cliente
+    private String codProfile; //Codigo de perfil del cliente
     private Float balance; //Saldo
     @DateTimeFormat(pattern = "aaaa-mm-dd")
     private Date date;

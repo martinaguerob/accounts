@@ -31,13 +31,23 @@ public class WebClientConfig {
                 .bodyToMono(Customers.class);
     }
 
+    public Mono<Customers> getCustomerByIdAndCodProfile(@PathVariable String id, String codProfile){
+        return webClientBuilder.build()
+                .get()
+                .uri("http://localhost:8080/customers/"+id+"/"+codProfile)
+                .retrieve()
+                .bodyToMono(Customers.class);
+    }
+
+
     public Mono<MovementBankAccount> saveMovementBankAccount(MovementBankAccount movementBankAccount){
         return webClientBuilder.build()
                 .post()
-                .uri("http://localhost:8080/movements/bank-account", movementBankAccount)
+                .uri("http://localhost:8080/movements/bank-account")
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromValue(movementBankAccount))
                 .retrieve()
                 .bodyToMono(MovementBankAccount.class);
     }
+
 }

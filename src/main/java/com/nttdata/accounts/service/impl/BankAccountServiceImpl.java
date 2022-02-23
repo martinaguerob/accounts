@@ -2,6 +2,7 @@ package com.nttdata.accounts.service.impl;
 
 import com.nttdata.accounts.config.WebClientConfig;
 import com.nttdata.accounts.entity.BankAccount;
+import com.nttdata.accounts.entity.CreditCard;
 import com.nttdata.accounts.model.Customers;
 import com.nttdata.accounts.model.MovementBankAccount;
 import com.nttdata.accounts.repository.BankAccountRepository;
@@ -26,7 +27,7 @@ public class BankAccountServiceImpl implements BankAccountService {
 
     @Override
     public Flux<BankAccount> findAll() {
-        System.out.println(bankAccountRepository.findAll());
+        System.out.println("Listar todos");
         return bankAccountRepository.findAll();
     }
 
@@ -35,6 +36,7 @@ public class BankAccountServiceImpl implements BankAccountService {
         System.out.println("Se llegó a la función guardar");
         entity.setDate(new Date());
         entity.setStatus(true);
+        this.saveMovementBankAccount(entity.getNumberAccount(), entity.getBalance()).subscribe();
         return bankAccountRepository.save(entity);
     }
 
@@ -72,30 +74,40 @@ public class BankAccountServiceImpl implements BankAccountService {
         System.out.println("Se guarda en ahorros");
         System.out.println("Id: "+ webClientConfig.getCustomerById(entity.getIdCustomer()));
         Mono<Customers> customer = webClientConfig.getCustomerById(entity.getIdCustomer());
+        Mono<BankAccount>personalb001 = bankAccountRepository.findByIdCustomerAndCodProfile(entity.getIdCustomer(), "personalb001");
+        Mono<CreditCard>creditCard01 = creditCardRepository.findByIdCustomerAndCodProfile(entity.getIdCustomer(), "vip001");
+
+
         return customer
-                .filter(c -> (c.getCodProfile().equals("vip001") || c.getCodProfile().equals("personalb001")) && bankAccountRepository.findByIdCustomer(c.getId())== null )
-                .flatMap(origin -> origin.getCodProfile().equals("vip001") && creditCardRepository.findByIdCustomer(entity.getIdCustomer())==null
-                        ? this.save(entity)
-                        : !(origin.getCodProfile().equals("vip001"))
-                        ? this.save(entity) : Mono.empty())
-                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NO_CONTENT)));
+                .filter(c -> c.getCodProfile().equals("vip001") || c.getCodProfile().equals("personalb001"))
+                .flatMap(cc -> cc.getCodProfile() == "personalb001"
+                    ? personalb001.switchIfEmpty(save(entity))
+                    /*: cc.getCodProfile() == "vip001"
+                        ? creditCard01.flatMap(cc->()).switchIfEmpty(save(entity)) */
+                        : Mono.error(new ResponseStatusException(HttpStatus.NO_CONTENT))
+                );
     }
+
 
     @Override
     public Mono<BankAccount> saveCurrentAccount(BankAccount entity) {
         //Lógica para guardar en cuenta corriente
         System.out.println("Se guarda en corriente");
         Mono<Customers> customer = webClientConfig.getCustomerById(entity.getIdCustomer());
+        Mono<BankAccount> personalb001 = bankAccountRepository.findByIdCustomerAndCodProfile(entity.getIdCustomer(), "personalb001");
+        Mono<BankAccount> vip001 = bankAccountRepository.findByIdCustomerAndCodProfile(entity.getIdCustomer(), "vip001");
+        Mono<CreditCard>pyme001 = creditCardRepository.findByIdCustomerAndCodProfile(entity.getIdCustomer(), "pyme001");
+
         return customer
-                .filter(c ->
-                        (((c.getCodProfile().equals("personalb001")) || (c.getCodProfile().equals("vip001")))
-                                && bankAccountRepository.findByIdCustomer(entity.getIdCustomer()).equals(""))
-                                || (c.getCodProfile().equals("pyme001") || c.getCodProfile().equals("empresarialb001")))
-                .flatMap(origin -> origin.getCodProfile().equals("pyme001") && creditCardRepository.findByIdCustomer(entity.getIdCustomer())==null
-                        ? this.save(entity)
-                        : !(origin.getCodProfile().equals("pyme001"))
-                        ? this.save(entity) : Mono.empty()
-                ).switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NO_CONTENT)));
+                .flatMap(c -> c.getCodProfile() == "personalb001" ? personalb001.switchIfEmpty(save(entity))
+                        : c.getCodProfile() == "vip001" ? vip001.switchIfEmpty(save(entity))
+                        : c.getCodProfile() == "empresarialb001" ? save(entity)
+                        /*: c.getCodProfile() == "pyme001" ?  pyme001.switchIfEmpty(save(entity))*/
+                        : Mono.empty()
+
+                );
+
+
     }
 
     @Override
@@ -103,14 +115,38 @@ public class BankAccountServiceImpl implements BankAccountService {
         //Lógica para guardar en cuenta plazo fijo
         System.out.println("Se guarda en plazo fijo");
         Mono<Customers> customer = webClientConfig.getCustomerById(entity.getIdCustomer());
-
         return customer
-                .filter(c ->
-                        ((c.getCodProfile().equals("personalb001")) || (c.getCodProfile().equals("vip001")))
-                         && bankAccountRepository.findByIdCustomer(c.getId())==null
-                )
-                .flatMap(origin->this.save(entity))
-                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NO_CONTENT)));
+                .filter(c -> c.getCodProfile().equals("vip001") || c.getCodProfile() == "personalb001 ")
+                .flatMap(cu-> {
+                    System.out.println("Ingresó al flatmap");
+                    Mono<BankAccount> bankAccountMono = bankAccountRepository.findByIdCustomerAndType(entity.getIdCustomer(), entity.getType());
+                    return bankAccountMono
+                            .switchIfEmpty(save(entity));
+                });
+
+
+    }
+
+    @Override
+    public Mono<BankAccount> findByIdCustomerAndType(String idCustomer, String type) {
+        return findByIdCustomerAndType(idCustomer, type);
+    }
+
+    public boolean issetAccount(String id){
+        boolean isset=true;
+        Flux<BankAccount> issetBA = bankAccountRepository.findByIdCustomer(id);
+        if (issetBA.blockFirst().getId() == null){
+            return false;
+        }else
+            return true;
+    }
+
+    @Override
+    public Flux<BankAccount> findByIdCustomer(String idCustomer) {
+        boolean val;
+        val = this.issetAccount(idCustomer);
+
+        return bankAccountRepository.findByIdCustomer(idCustomer);
     }
 
     @Override
@@ -129,7 +165,7 @@ public class BankAccountServiceImpl implements BankAccountService {
         MovementBankAccount movementBankAccount = new MovementBankAccount();
         movementBankAccount.setAmount(amount);
         movementBankAccount.setDescription("Apertura de cuenta");
-        movementBankAccount.setIdAccount(numberAccount);
+        movementBankAccount.setNumberAccount(numberAccount);
         movementBankAccount.setStatus(true);
         return  webClientConfig.saveMovementBankAccount(movementBankAccount);
     }

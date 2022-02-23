@@ -15,6 +15,11 @@ public interface BankAccountService extends CrudService<BankAccount, String>{
     //Guardar Cuenta Plazo Fijo
     Mono<BankAccount> saveFixedTerm(BankAccount entity);
 
+    Mono<BankAccount> findByIdCustomerAndType(String idCustomer, String type);
+
+    //Listar cuentas por usuario
+    Flux<BankAccount> findByIdCustomer(String idCustomer);
+
 
     //Customers
     Flux<Customers> getCustomers();

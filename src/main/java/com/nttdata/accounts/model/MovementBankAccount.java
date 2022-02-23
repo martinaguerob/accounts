@@ -18,5 +18,5 @@ public class MovementBankAccount {
     @DateTimeFormat(pattern = "yyyy-mm-dd hh:mm:ss")
     private Date date;
     private Boolean status;
-    private String idAccount;
+    private String numberAccount;
 }

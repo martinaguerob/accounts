@@ -7,4 +7,5 @@ import reactor.core.publisher.Mono;
 public interface CreditCardRepository extends ReactiveMongoRepository<CreditCard, String> {
 
     Mono<CreditCard>findByIdCustomer(String idCustomer);
+    Mono<CreditCard>findByIdCustomerAndCodProfile(String idCustomer, String codProfile);
 }

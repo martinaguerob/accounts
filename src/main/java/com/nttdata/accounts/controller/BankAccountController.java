@@ -59,6 +59,13 @@ public class BankAccountController {
         System.out.println("Listar clientes");
         return bankAccountService.getCustomers();
     }
+    @GetMapping("/bank-account/{idCustomer}/{type}")
+    @ResponseStatus(HttpStatus.OK)
+    public Mono<BankAccount> getCustomerByIdAndType(@PathVariable String idCustomer, String type){
+        System.out.println("Listar cliente por id: "+ idCustomer);
+        return bankAccountService.findByIdCustomerAndType(idCustomer, type);
+    }
+
     @GetMapping("/bank-account/customer/{id}")
     @ResponseStatus(HttpStatus.OK)
     public Mono<Customers> getCustomerById(@PathVariable String id){
