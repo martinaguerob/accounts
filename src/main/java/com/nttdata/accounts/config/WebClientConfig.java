@@ -1,5 +1,6 @@
 package com.nttdata.accounts.config;
 
+import com.nttdata.accounts.entity.BankAccount;
 import com.nttdata.accounts.model.Customers;
 import com.nttdata.accounts.model.MovementBankAccount;
 import org.springframework.context.annotation.Configuration;
@@ -48,6 +49,14 @@ public class WebClientConfig {
                 .body(BodyInserters.fromValue(movementBankAccount))
                 .retrieve()
                 .bodyToMono(MovementBankAccount.class);
+    }
+
+    public Flux<MovementBankAccount> getMovementsByAccount(@PathVariable String numberAccount){
+        return webClientBuilder.build()
+                .get()
+                .uri("http://localhost:8080/movements/bank-account/number/"+numberAccount)
+                .retrieve()
+                .bodyToFlux(MovementBankAccount.class);
     }
 
 }

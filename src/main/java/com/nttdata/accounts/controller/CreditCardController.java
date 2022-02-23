@@ -29,11 +29,11 @@ public class CreditCardController {
         return creditCardService.save(creditCard);
     }
 
-    @PutMapping("/update")
+    @PutMapping("/update/{id}")
     @ResponseStatus(HttpStatus.OK)
     public Mono<CreditCard> updateCreditCard(@RequestBody CreditCard creditCard, @PathVariable String id){
         System.out.println("Actualizar tarjeta de crédito");
-        return creditCardService.update(creditCard);
+        return creditCardService.update(creditCard, id);
     }
 
     @PutMapping("/delete/{id}")

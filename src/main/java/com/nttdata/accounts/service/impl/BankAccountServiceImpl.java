@@ -33,7 +33,6 @@ public class BankAccountServiceImpl implements BankAccountService {
 
     @Override
     public Mono<BankAccount> save(BankAccount entity) {
-        System.out.println("Se llegó a la función guardar");
         entity.setDate(new Date());
         entity.setStatus(true);
         this.saveMovementBankAccount(entity.getNumberAccount(), entity.getBalance()).subscribe();
@@ -41,13 +40,15 @@ public class BankAccountServiceImpl implements BankAccountService {
     }
 
     @Override
-    public Mono<BankAccount> update(BankAccount entity) {
-        return  bankAccountRepository.findById(entity.getId())
+    public Mono<BankAccount> update(BankAccount entity, String id) {
+        return  bankAccountRepository.findById(id)
                 .switchIfEmpty(Mono.empty())
                 .flatMap(origin -> {
-                    origin.setStatus(entity.getStatus());
-                    origin.setNumberAccount(entity.getNumberAccount());
-                    origin.setType(entity.getType());
+                    origin.setType(entity.getType()==null ? origin.getType() : entity.getType());
+                    origin.setNumberAccount(entity.getNumberAccount()==null ? origin.getNumberAccount() : entity.getNumberAccount());
+                    origin.setIdCustomer(entity.getIdCustomer()==null ? origin.getIdCustomer() : entity.getIdCustomer());
+                    origin.setCodProfile(entity.getCodProfile()==null ? origin.getCodProfile() : entity.getCodProfile());
+                    origin.setBalance(entity.getBalance()==null ? origin.getBalance() : entity.getBalance());
                     return bankAccountRepository.save(origin);
                 });
     }
@@ -86,6 +87,7 @@ public class BankAccountServiceImpl implements BankAccountService {
                                 /*: cc.getCodProfile() == "vip001"
                                 ? creditCard01.flatMap(cc->()).switchIfEmpty(save(entity)) */
                                     : Mono.error(new ResponseStatusException(HttpStatus.NO_CONTENT));
+
                         }
                 );
     }

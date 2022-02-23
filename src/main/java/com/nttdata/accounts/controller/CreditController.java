@@ -29,11 +29,11 @@ public class CreditController {
         return creditService.save(credit);
     }
 
-    @PutMapping("/update")
+    @PutMapping("/update/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Mono<Credit> updateCredit(@RequestBody Credit credit){
+    public Mono<Credit> updateCredit(@RequestBody Credit credit, @PathVariable String id){
         System.out.println("Actualizar crédito");
-        return creditService.update(credit);
+        return creditService.update(credit, id);
     }
 
     @PutMapping("/delete/{id}")

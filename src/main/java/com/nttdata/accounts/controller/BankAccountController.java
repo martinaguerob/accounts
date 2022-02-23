@@ -33,11 +33,11 @@ public class BankAccountController {
                 : bankAccountService.saveFixedTerm(bankAccount);
     }
 
-    @PutMapping("/bank-account/update")
+    @PutMapping("/bank-account/update/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Mono<BankAccount> updateBankAccount(@RequestBody BankAccount bankAccount){
+    public Mono<BankAccount> updateBankAccount(@RequestBody BankAccount bankAccount, @PathVariable String id){
         System.out.println("Actualizar cuenta bancaria");
-        return bankAccountService.update(bankAccount);
+        return bankAccountService.update(bankAccount, id);
     }
 
     @PutMapping("/bank-account/delete/{id}")
