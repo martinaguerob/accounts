@@ -72,7 +72,6 @@ public class BankAccountServiceImpl implements BankAccountService {
     public Mono<BankAccount> saveSavingAccount(BankAccount entity) {
         //Lógica para guardar cuenta de ahorros
         System.out.println("Se guarda en ahorros");
-        System.out.println("Id: "+ webClientConfig.getCustomerById(entity.getIdCustomer()));
         Mono<Customers> customer = webClientConfig.getCustomerById(entity.getIdCustomer());
         Mono<BankAccount>personalb001 = bankAccountRepository.findByIdCustomerAndCodProfile(entity.getIdCustomer(), "personalb001");
         Mono<CreditCard>creditCard01 = creditCardRepository.findByIdCustomerAndCodProfile(entity.getIdCustomer(), "vip001");
@@ -80,11 +79,14 @@ public class BankAccountServiceImpl implements BankAccountService {
 
         return customer
                 .filter(c -> c.getCodProfile().equals("vip001") || c.getCodProfile().equals("personalb001"))
-                .flatMap(cc -> cc.getCodProfile() == "personalb001"
-                    ? personalb001.switchIfEmpty(save(entity))
-                    /*: cc.getCodProfile() == "vip001"
-                        ? creditCard01.flatMap(cc->()).switchIfEmpty(save(entity)) */
-                        : Mono.error(new ResponseStatusException(HttpStatus.NO_CONTENT))
+                .flatMap(cc -> {
+                    entity.setCodProfile(cc.getCodProfile());
+                            return cc.getCodProfile() == "personalb001"
+                                    ? personalb001.switchIfEmpty(save(entity))
+                                /*: cc.getCodProfile() == "vip001"
+                                ? creditCard01.flatMap(cc->()).switchIfEmpty(save(entity)) */
+                                    : Mono.error(new ResponseStatusException(HttpStatus.NO_CONTENT));
+                        }
                 );
     }
 
@@ -99,11 +101,15 @@ public class BankAccountServiceImpl implements BankAccountService {
         Mono<CreditCard>pyme001 = creditCardRepository.findByIdCustomerAndCodProfile(entity.getIdCustomer(), "pyme001");
 
         return customer
-                .flatMap(c -> c.getCodProfile() == "personalb001" ? personalb001.switchIfEmpty(save(entity))
-                        : c.getCodProfile() == "vip001" ? vip001.switchIfEmpty(save(entity))
-                        : c.getCodProfile() == "empresarialb001" ? save(entity)
-                        /*: c.getCodProfile() == "pyme001" ?  pyme001.switchIfEmpty(save(entity))*/
-                        : Mono.empty()
+                .flatMap(c ->
+                        {
+                            entity.setCodProfile(c.getCodProfile());
+                            return c.getCodProfile() == "personalb001" ? personalb001.switchIfEmpty(save(entity))
+                                    : c.getCodProfile() == "vip001" ? vip001.switchIfEmpty(save(entity))
+                                    : c.getCodProfile() == "empresarialb001" ? save(entity)
+                                    /*: c.getCodProfile() == "pyme001" ?  pyme001.switchIfEmpty(save(entity))*/
+                                    : Mono.empty();
+                        }
 
                 );
 
@@ -118,7 +124,7 @@ public class BankAccountServiceImpl implements BankAccountService {
         return customer
                 .filter(c -> c.getCodProfile().equals("vip001") || c.getCodProfile() == "personalb001 ")
                 .flatMap(cu-> {
-                    System.out.println("Ingresó al flatmap");
+                    entity.setCodProfile(cu.getCodProfile());
                     Mono<BankAccount> bankAccountMono = bankAccountRepository.findByIdCustomerAndType(entity.getIdCustomer(), entity.getType());
                     return bankAccountMono
                             .switchIfEmpty(save(entity));
@@ -132,20 +138,10 @@ public class BankAccountServiceImpl implements BankAccountService {
         return findByIdCustomerAndType(idCustomer, type);
     }
 
-    public boolean issetAccount(String id){
-        boolean isset=true;
-        Flux<BankAccount> issetBA = bankAccountRepository.findByIdCustomer(id);
-        if (issetBA.blockFirst().getId() == null){
-            return false;
-        }else
-            return true;
-    }
+
 
     @Override
     public Flux<BankAccount> findByIdCustomer(String idCustomer) {
-        boolean val;
-        val = this.issetAccount(idCustomer);
-
         return bankAccountRepository.findByIdCustomer(idCustomer);
     }
 
