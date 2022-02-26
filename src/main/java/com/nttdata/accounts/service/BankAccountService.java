@@ -14,11 +14,12 @@ public interface BankAccountService extends CrudService<BankAccount, String>{
     Mono<BankAccount> saveCurrentAccount(BankAccount entity);
     //Guardar Cuenta Plazo Fijo
     Mono<BankAccount> saveFixedTerm(BankAccount entity);
-
+    //Buscar cuenta por cliente y tipo de cuenta
     Mono<BankAccount> findByIdCustomerAndType(String idCustomer, String type);
-
-    //Listar cuentas por usuario
+    //Listar cuentas por cliente
     Flux<BankAccount> findByIdCustomer(String idCustomer);
+    //Buscar cuenta por número de cuenta
+    Mono<BankAccount> findByNumberAccount(String numberAccount);
 
 
     //Customers
@@ -26,7 +27,5 @@ public interface BankAccountService extends CrudService<BankAccount, String>{
     Mono<Customers> getCustomerById(String id);
 
     //Movement
-    Mono<MovementBankAccount> saveMovementBankAccount(String numberAccount, Float amount);
-
-
+    Mono<MovementBankAccount> saveMovementBankAccount(String numberAccount, Double amount);
 }

@@ -53,6 +53,14 @@ public class BankAccountController {
         System.out.println("Buscar cuenta bancaria");
         return bankAccountService.findById(id);
     }
+
+    @GetMapping("/bank-account/number/{numberAccount}")
+    @ResponseStatus(HttpStatus.OK)
+    public  Mono<BankAccount> findAccountBankByNumberAccount(@PathVariable String numberAccount){
+        System.out.println("Buscar cuenta bancaria por número de cuenta");
+        return bankAccountService.findByNumberAccount(numberAccount);
+    }
+
     @GetMapping("/bank-account/customers")
     @ResponseStatus(HttpStatus.OK)
     public Flux<Customers> getCustomers(){

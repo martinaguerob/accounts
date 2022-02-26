@@ -12,8 +12,8 @@ public class CreditCard {
 
     @Id
     private String id;
-    private Float balance; //Saldo inicial
-    private Float stop; //Tope
+    private Double balance; //Saldo inicial
+    private Double stop; //Tope
     private String idCustomer;
     private String codProfile;
     private Boolean status;

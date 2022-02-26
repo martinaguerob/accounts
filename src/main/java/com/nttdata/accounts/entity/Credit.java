@@ -14,10 +14,10 @@ public class Credit {
     private String id;
     private String code;
     private String type; //Tipo de crédito: personal o empresarial
-    private Float amount; //Monto prestamos
-    private Float tea; //Tasa efectiva anual
-    private Float feeNumber; //Tiempo en meses
-    private Float feeMonthly; //Cuota mensual -> Se calcula automáticamente
+    private Double amount; //Monto prestamos
+    private Double tea; //Tasa efectiva anual
+    private Double feeNumber; //Tiempo en meses
+    private Double feeMonthly; //Cuota mensual -> Se calcula automáticamente
     private Boolean status;
     private String idCustomer;
 }

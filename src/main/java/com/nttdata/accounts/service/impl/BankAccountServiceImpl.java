@@ -82,7 +82,7 @@ public class BankAccountServiceImpl implements BankAccountService {
                 .filter(c -> c.getCodProfile().equals("vip001") || c.getCodProfile().equals("personalb001"))
                 .flatMap(cc -> {
                     entity.setCodProfile(cc.getCodProfile());
-                            return cc.getCodProfile() == "personalb001"
+                            return cc.getCodProfile().equals("personalb001")
                                     ? personalb001.switchIfEmpty(save(entity))
                                 /*: cc.getCodProfile() == "vip001"
                                 ? creditCard01.flatMap(cc->()).switchIfEmpty(save(entity)) */
@@ -124,8 +124,9 @@ public class BankAccountServiceImpl implements BankAccountService {
         System.out.println("Se guarda en plazo fijo");
         Mono<Customers> customer = webClientConfig.getCustomerById(entity.getIdCustomer());
         return customer
-                .filter(c -> c.getCodProfile().equals("vip001") || c.getCodProfile() == "personalb001 ")
+                .filter(c -> c.getCodProfile().equals("vip001") || c.getCodProfile().equals("personalb001"))
                 .flatMap(cu-> {
+                    System.out.println("Se entró al flatmap:" + cu.getCodProfile());
                     entity.setCodProfile(cu.getCodProfile());
                     Mono<BankAccount> bankAccountMono = bankAccountRepository.findByIdCustomerAndType(entity.getIdCustomer(), entity.getType());
                     return bankAccountMono
@@ -148,6 +149,11 @@ public class BankAccountServiceImpl implements BankAccountService {
     }
 
     @Override
+    public Mono<BankAccount> findByNumberAccount(String numberAccount) {
+        return bankAccountRepository.findByNumberAccount(numberAccount);
+    }
+
+    @Override
     public Flux<Customers> getCustomers() {
         return webClientConfig.getCustomers();
     }
@@ -158,7 +164,7 @@ public class BankAccountServiceImpl implements BankAccountService {
     }
 
     @Override
-    public Mono<MovementBankAccount> saveMovementBankAccount(String numberAccount, Float amount) {
+    public Mono<MovementBankAccount> saveMovementBankAccount(String numberAccount, Double amount) {
         System.out.println("Se llegó a la función guardar movimiento");
         MovementBankAccount movementBankAccount = new MovementBankAccount();
         movementBankAccount.setAmount(amount);
