@@ -21,6 +21,6 @@ public class BankAccount {
     private String codProfile; //Codigo de perfil del cliente
     private Double balance; //Saldo
     @DateTimeFormat(pattern = "yyyy-mm-dd")
-    private Date date;
+    private Date createdAt;
     private Boolean status;
 }

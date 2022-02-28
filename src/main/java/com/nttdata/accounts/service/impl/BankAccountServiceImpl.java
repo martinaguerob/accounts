@@ -33,7 +33,7 @@ public class BankAccountServiceImpl implements BankAccountService {
 
     @Override
     public Mono<BankAccount> save(BankAccount entity) {
-        entity.setDate(new Date());
+        entity.setCreatedAt(new Date());
         entity.setStatus(true);
         this.saveMovementBankAccount(entity.getNumberAccount(), entity.getBalance()).subscribe();
         return bankAccountRepository.save(entity);
@@ -114,8 +114,6 @@ public class BankAccountServiceImpl implements BankAccountService {
                         }
 
                 );
-
-
     }
 
     @Override
@@ -127,18 +125,13 @@ public class BankAccountServiceImpl implements BankAccountService {
                 .filter(c -> c.getCodProfile().equals("vip001") || c.getCodProfile().equals("personalb001"))
                 .flatMap(cu-> {
                     System.out.println("Se entró al flatmap:" + cu.getCodProfile());
-                    entity.setCodProfile(cu.getCodProfile());
-                    Mono<BankAccount> bankAccountMono = bankAccountRepository.findByIdCustomerAndType(entity.getIdCustomer(), entity.getType());
-                    return bankAccountMono
-                            .switchIfEmpty(save(entity));
+                    return save(entity);
                 });
-
-
     }
 
     @Override
     public Mono<BankAccount> findByIdCustomerAndType(String idCustomer, String type) {
-        return findByIdCustomerAndType(idCustomer, type);
+        return bankAccountRepository.findByIdCustomerAndType(idCustomer, type);
     }
 
 
@@ -173,4 +166,6 @@ public class BankAccountServiceImpl implements BankAccountService {
         movementBankAccount.setStatus(true);
         return  webClientConfig.saveMovementBankAccount(movementBankAccount);
     }
+
+
 }
